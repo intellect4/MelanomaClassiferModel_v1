@@ -4,7 +4,10 @@ Persists diagnostic results, staging metadata, and base64-encoded visual overlay
 into a local SQLite database file stored directly in the backend codebase.
 """
 
+import os
+import shutil
 import sqlite3
+import tempfile
 import uuid
 import io
 import base64
@@ -13,8 +16,20 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from PIL import Image
 
-# Database file stored inside the backend directory
-HISTORY_DB_PATH = Path(__file__).resolve().parent / "history_storage.db"
+# Database file stored inside the backend directory (with read-only serverless fallback)
+_BUNDLED_DB_PATH = Path(__file__).resolve().parent / "history_storage.db"
+
+
+def _resolve_db_path() -> Path:
+    if os.access(_BUNDLED_DB_PATH.parent, os.W_OK):
+        return _BUNDLED_DB_PATH
+    tmp_db = Path(tempfile.gettempdir()) / "history_storage.db"
+    if not tmp_db.exists() and _BUNDLED_DB_PATH.exists():
+        shutil.copy2(_BUNDLED_DB_PATH, tmp_db)
+    return tmp_db
+
+
+HISTORY_DB_PATH = _resolve_db_path()
 
 
 def _get_connection() -> sqlite3.Connection:
@@ -23,36 +38,51 @@ def _get_connection() -> sqlite3.Connection:
     return conn
 
 
+def _create_schema(conn: sqlite3.Connection) -> None:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS analysis_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            report_id TEXT UNIQUE NOT NULL,
+            specimen_id TEXT NOT NULL,
+            image_hash TEXT NOT NULL,
+            predicted_class TEXT NOT NULL,
+            predicted_idx INTEGER NOT NULL,
+            confidence_percent REAL NOT NULL,
+            primary_probability REAL NOT NULL,
+            metastatic_probability REAL NOT NULL,
+            stage TEXT NOT NULL,
+            tier TEXT NOT NULL,
+            risk TEXT NOT NULL,
+            action TEXT NOT NULL,
+            color TEXT NOT NULL,
+            alpha REAL NOT NULL,
+            salient_threshold REAL NOT NULL,
+            orig_image_base64 TEXT,
+            heatmap_overlay_base64 TEXT,
+            salient_foci_base64 TEXT,
+            analyzed_at TEXT NOT NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_specimen ON analysis_history (specimen_id)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_analyzed_at ON analysis_history (analyzed_at DESC)")
+    conn.commit()
+
+
 def init_history_db() -> None:
-    """Initializes the SQLite analysis_history table if it does not exist."""
-    with _get_connection() as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS analysis_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                report_id TEXT UNIQUE NOT NULL,
-                specimen_id TEXT NOT NULL,
-                image_hash TEXT NOT NULL,
-                predicted_class TEXT NOT NULL,
-                predicted_idx INTEGER NOT NULL,
-                confidence_percent REAL NOT NULL,
-                primary_probability REAL NOT NULL,
-                metastatic_probability REAL NOT NULL,
-                stage TEXT NOT NULL,
-                tier TEXT NOT NULL,
-                risk TEXT NOT NULL,
-                action TEXT NOT NULL,
-                color TEXT NOT NULL,
-                alpha REAL NOT NULL,
-                salient_threshold REAL NOT NULL,
-                orig_image_base64 TEXT,
-                heatmap_overlay_base64 TEXT,
-                salient_foci_base64 TEXT,
-                analyzed_at TEXT NOT NULL
-            )
-        """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_specimen ON analysis_history (specimen_id)")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_analyzed_at ON analysis_history (analyzed_at DESC)")
-        conn.commit()
+    """Initializes the SQLite analysis_history table, recovering cleanly if malformed."""
+    conn = _get_connection()
+    try:
+        with conn:
+            _create_schema(conn)
+    except sqlite3.DatabaseError:
+        conn.close()
+        if HISTORY_DB_PATH.exists():
+            HISTORY_DB_PATH.unlink(missing_ok=True)
+        conn = _get_connection()
+        with conn:
+            _create_schema(conn)
+    finally:
+        conn.close()
 
 
 def _pil_to_base64(pil_img: Image.Image) -> str:

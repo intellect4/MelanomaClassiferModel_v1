@@ -1,0 +1,8 @@
+[project]
+name = "melanoma-classifier-model"
+version = "1.0.0"
+description = "Melanoma Histopathology AI Decision Support System"
+requires-python = ">=3.11"
+
+[tool.vercel]
+entrypoint = "backend.main:app"

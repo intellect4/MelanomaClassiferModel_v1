@@ -32,6 +32,19 @@ app.add_middleware(
 service = MelanomaInferenceService()
 
 
+@app.get("/")
+def root():
+    """Root landing endpoint for API health and documentation discovery."""
+    return {
+        "service": "Melanoma Histopathology AI Decision Support API",
+        "status": "ONLINE",
+        "docs_url": "/docs",
+        "health_url": "/health",
+        "predict_url": "/api/v1/predict",
+        "history_url": "/api/v1/history",
+    }
+
+
 @app.get("/health", response_model=HealthStatus)
 def health_check():
     """Returns system status, device, and model checkpoint state."""

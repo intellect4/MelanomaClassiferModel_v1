@@ -1,0 +1,14 @@
+DataSet/
+DataSet_224.zip
+*.zip
+colab/
+majorprj.py
+package_dataset.py
+Melanoma_Classifier_Architecture_Plan.pdf
+Melanoma_Architecture_Report.html
+__pycache__/
+*.pyc
+*.pyo
+.git/
+run_backend.bat
+run_frontend.bat
