@@ -3,8 +3,7 @@ DataSet/
 DataSet_224.zip
 *.zip
 
-# Local Runtime Database & Caches
-backend/history_storage.db
+# Python Caches & Transient DB Journals (history_storage.db is tracked for persistent history)
 backend/*.db-journal
 __pycache__/
 *.py[cod]
@@ -21,3 +20,4 @@ env/
 Thumbs.db
 .vscode/
 .idea/
+
