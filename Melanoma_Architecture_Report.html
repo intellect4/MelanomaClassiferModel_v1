@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Melanoma AI Decision Support System - Complete Architectural Analysis & Implementation Plan</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 16mm 14mm 16mm 14mm;
+    @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 8pt;
+      color: #64748b;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    background-color: #ffffff;
+    line-height: 1.55;
+    font-size: 9.5pt;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Header banner */
+  .header-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+    color: #ffffff;
+    padding: 22px 24px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .header-banner h1 {
+    margin: 0 0 6px 0;
+    font-size: 18pt;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .header-banner .subtitle {
+    font-size: 10.5pt;
+    color: #bfdbfe;
+    margin: 0 0 12px 0;
+    font-weight: 400;
+  }
+
+  .meta-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 8pt;
+  }
+
+  .meta-item {
+    background: rgba(255, 255, 255, 0.12);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .meta-item strong {
+    color: #93c5fd;
+  }
+
+  /* Headings */
+  h2 {
+    color: #0f172a;
+    font-size: 13pt;
+    font-weight: 700;
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 4px;
+    margin-top: 22px;
+    margin-bottom: 10px;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    color: #1e3a8a;
+    font-size: 10.5pt;
+    font-weight: 600;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin: 0 0 8px 0;
+    text-align: justify;
+  }
+
+  /* Callout Boxes */
+  .callout {
+    border-left: 4px solid #2563eb;
+    background-color: #eff6ff;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+
+  .callout-title {
+    font-weight: 700;
+    color: #1d4ed8;
+    margin-bottom: 4px;
+    font-size: 9.5pt;
+  }
+
+  .callout-success {
+    border-left-color: #059669;
+    background-color: #ecfdf5;
+  }
+  .callout-success .callout-title { color: #047857; }
+
+  .callout-warning {
+    border-left-color: #d97706;
+    background-color: #fffbeb;
+  }
+  .callout-warning .callout-title { color: #b45309; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 16px 0;
+    font-size: 8.5pt;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 6px 9px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #f8fafc;
+  }
+
+  /* Code blocks */
+  pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 8pt;
+    line-height: 1.45;
+    overflow-x: auto;
+    margin: 8px 0 12px 0;
+    page-break-inside: avoid;
+  }
+
+  code {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 8.5pt;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    padding: 1px 4px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+  }
+
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    border: none;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 12px;
+    font-size: 7.5pt;
+    font-weight: 600;
+  }
+  .badge-primary { background: #dbeafe; color: #1d4ed8; }
+  .badge-metastatic { background: #fee2e2; color: #b91c1c; }
+  .badge-neutral { background: #f1f5f9; color: #475569; }
+
+  /* Section cards */
+  .section-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+    background-color: #ffffff;
+    page-break-inside: avoid;
+  }
+
+  .section-card h4 {
+    margin: 0 0 6px 0;
+    color: #0f172a;
+    font-size: 9.5pt;
+  }
+
+  .grid-2 {
+    display: flex;
+    gap: 12px;
+    margin: 8px 0;
+  }
+
+  .grid-2 > div {
+    flex: 1;
+  }
+
+  ul, ol {
+    margin: 4px 0 10px 18px;
+    padding: 0;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  .prompt-box {
+    background-color: #faf5ff;
+    border: 1px solid #e9d5ff;
+    border-left: 4px solid #9333ea;
+    border-radius: 0 6px 6px 0;
+    padding: 10px;
+    margin: 8px 0 14px 0;
+    page-break-inside: avoid;
+  }
+
+  .prompt-header {
+    font-weight: 700;
+    color: #7e22ce;
+    font-size: 8.5pt;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .prompt-box pre {
+    background: #1e1b4b;
+    margin: 4px 0 0 0;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header Banner -->
+  <div class="header-banner">
+    <h1>Melanoma AI Decision Support System</h1>
+    <div class="subtitle">Complete Architectural Analysis, Decoupled Frontend/Backend Design, and Full Implementation Plan</div>
+    <div class="meta-grid">
+      <div class="meta-item"><strong>Domain:</strong> Histopathology Subtyping (Primary vs. Metastatic)</div>
+      <div class="meta-item"><strong>Source File:</strong> majorprj.py (Colab Export)</div>
+      <div class="meta-item"><strong>Dataset:</strong> TCGA / PUMA ROI Patches (7,677 Images)</div>
+      <div class="meta-item"><strong>Date:</strong> November 2026</div>
+      <div class="meta-item"><strong>Architecture:</strong> Pretrained DenseNet-121 + Dual CBAM + Dual Pooling</div>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <h2>1. Deep Technical Analysis of majorprj.py</h2>
+  <p>
+    The script <code>majorprj.py</code> originates as an interactive Google Colab notebook (<code>majorprj.ipynb</code>) developed for experimental model iteration. It tackles high-stakes histopathology classification: distinguishing <strong>Primary Melanoma</strong> from <strong>Metastatic Melanoma</strong> at the cellular level.
+  </p>
+
+  <h3>A. Model Anatomy: MultiScaleAttentionMelanomaNet</h3>
+  <p>The final and most effective architecture in the file combines a high-capacity convolutional backbone with dual-domain attention mechanisms and hybrid spatial pooling:</p>
+  <ul>
+    <li><strong>Backbone Feature Extractor:</strong> Torchvision's <code>densenet121</code> (pre-trained on ImageNet). Dense connectivity allows direct feature reuse across all layers, extracting fine micro-architectural nuclear atypia and stroma morphology with 1,024 bottleneck feature channels.</li>
+    <li><strong>Channel Attention Module (CAM):</strong> Analyzes inter-channel feature correlations. It applies both <code>AdaptiveAvgPool2d(1)</code> and <code>AdaptiveMaxPool2d(1)</code> to the 1024-channel tensor, feeding them through a shared 2-layer MLP (Conv2d 1024 &rarr; 64 &rarr; 1024), summing the outputs, and applying a Sigmoid gate to recalibrate channel importances dynamically.</li>
+    <li><strong>Spatial Attention Module (SAM):</strong> Identifies cellular loci within the spatial patch. It aggregates features along the channel axis (computing channel mean and channel max), concatenates them into a 2-channel spatial map, and applies a large <code>7x7</code> convolution with Sigmoid activation.</li>
+    <li><strong>Hybrid Dual-Pooling:</strong> Unlike traditional architectures that employ only average pooling, this network applies both <code>AdaptiveAvgPool2d(1)</code> (1024 dims) and <code>AdaptiveMaxPool2d(1)</code> (1024 dims) in parallel, concatenating them into a rich <strong>2,048-dimensional</strong> representation. This preserves both maximum nuclear hyperchromatism and overall background cellular architecture.</li>
+    <li><strong>Classifier Head:</strong> Multi-stage dense network with batch normalization and dropout:
+      <code>Linear(2048 &rarr; 512) &rarr; BatchNorm1d &rarr; ReLU/SiLU &rarr; Dropout(0.4) &rarr; Linear(512 &rarr; 128) &rarr; BatchNorm1d &rarr; ReLU/SiLU &rarr; Dropout(0.2) &rarr; Linear(128 &rarr; 2)</code>.
+    </li>
+  </ul>
+
+  <h3>B. Training Optimization & Regularization Strategy</h3>
+  <ul>
+    <li><strong>Class-Weighted Loss with Smoothing:</strong> Uses <code>CrossEntropyLoss</code> weighted by inverse class frequency to counter dataset imbalance, combined with <code>label_smoothing=0.08</code> to prevent overconfident boundary decisions on ambiguous tissue stains.</li>
+    <li><strong>Differential Learning Rates:</strong> The pre-trained DenseNet backbone updates conservatively at <code>2e-5</code> (preventing catastrophic forgetting), while the custom attention and classification heads update more aggressively at <code>1e-4</code> and <code>2e-4</code> using <code>AdamW</code>.</li>
+    <li><strong>Learning Rate Scheduling:</strong> <code>CosineAnnealingWarmRestarts(T_0=10, T_mult=2, eta_min=1e-6)</code> periodically resets learning rates to escape sharp local minima.</li>
+    <li><strong>Gradient Clipping:</strong> <code>clip_grad_norm_(max_norm=2.0)</code> safeguards against gradient explosion during fine-tuning.</li>
+  </ul>
+
+  <h3>C. Diagnostic Pipeline & Clinical Decision Engine</h3>
+  <ul>
+    <li><strong>Test-Time Augmentation (TTA):</strong> Inference runs across 4 augmented views (Original, Horizontal Flip, Vertical Flip, 90&deg; Rotation) and ensembles the softmax probabilities to stabilize edge predictions.</li>
+    <li><strong>Grad-CAM Explainability:</strong> Hooks into the final convolutional layer <code>features.denseblock4.denselayer16.conv2</code>. Includes automated background thresholding (luminance threshold at 15 followed by 7x7 Gaussian blur) to ensure heatmaps are never erroneously cast onto blank glass slide areas.</li>
+    <li><strong>Clinical Risk Staging (Stage 0 to Stage 3):</strong>
+      <ul>
+        <li><strong>Stage 0 (Low Risk):</strong> Primary Melanoma with &ge; 85% confidence &mdash; <em>In Situ / Low Cellular Atypia</em>. Action: Routine surveillance.</li>
+        <li><strong>Stage 1 (Moderate Risk):</strong> Primary Melanoma with &lt; 85% confidence &mdash; <em>Early Localized Invasive Primary</em>. Action: Wide local excision.</li>
+        <li><strong>Stage 2 (High Risk):</strong> Metastatic Melanoma with &lt; 85% confidence &mdash; <em>Regional / Micro-Metastatic Spread</em>. Action: Sentinel Lymph Node Biopsy (SLNB).</li>
+        <li><strong>Stage 3 (Critical / Urgent):</strong> Metastatic Melanoma with &ge; 85% confidence &mdash; <em>Macroscopic Frank Infiltration</em>. Action: Immediate oncology referral & systemic immunotherapy.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">Architectural Bottlenecks in majorprj.py</div>
+    The script contains legacy Colab-specific code: hardcoded <code>/content/drive/</code> mount commands, interactive Google Colab widgets (<code>files.upload()</code>), duplicated model definitions from earlier trial runs, and intertwined data loader, training, and plotting calls. It cannot be served directly or scaled without modular decoupling.
+  </div>
+
+  <!-- Section 2 -->
+  <h2>2. Physical Dataset Audit (DataSet/ Folder)</h2>
+  <p>
+    An audit of the local <code>DataSet</code> folder confirms an organized collection of <strong>7,677 high-resolution histopathological patches</strong> derived from the TCGA / PUMA melanoma cohort.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Dataset Split</th>
+        <th>Subfolder Name</th>
+        <th>Class Name</th>
+        <th>Image Format</th>
+        <th>Resolution</th>
+        <th>Image Count</th>
+        <th>Proportion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Training</strong></td>
+        <td><code>Training/Primary_Training</code></td>
+        <td><span class="badge badge-primary">Primary (Class 0)</span></td>
+        <td>PNG (RGB)</td>
+        <td>1024 &times; 1024</td>
+        <td>4,005</td>
+        <td>52.2%</td>
+      </tr>
+      <tr>
+        <td><strong>Training</strong></td>
+        <td><code>Training/Metastatic_Training</code></td>
+        <td><span class="badge badge-metastatic">Metastatic (Class 1)</span></td>
+        <td>PNG (RGB)</td>
+        <td>1024 &times; 1024</td>
+        <td>3,333</td>
+        <td>43.4%</td>
+      </tr>
+      <tr>
+        <td><strong>Validation</strong></td>
+        <td><code>Validation/primary_validation</code></td>
+        <td><span class="badge badge-primary">Primary (Class 0)</span></td>
+        <td>PNG (RGB)</td>
+        <td>1024 &times; 1024</td>
+        <td>144</td>
+        <td>1.9%</td>
+      </tr>
+      <tr>
+        <td><strong>Validation</strong></td>
+        <td><code>Validation/metastatic_validation</code></td>
+        <td><span class="badge badge-metastatic">Metastatic (Class 1)</span></td>
+        <td>PNG (RGB)</td>
+        <td>1024 &times; 1024</td>
+        <td>47</td>
+        <td>0.6%</td>
+      </tr>
+      <tr>
+        <td><strong>Testing</strong></td>
+        <td><code>Testing/primary_testing</code></td>
+        <td><span class="badge badge-primary">Primary (Class 0)</span></td>
+        <td>PNG (RGB)</td>
+        <td>1024 &times; 1024</td>
+        <td>36</td>
+        <td>0.5%</td>
+      </tr>
+      <tr>
+        <td><strong>Testing</strong></td>
+        <td><code>Testing/metastatic_testing</code></td>
+        <td><span class="badge badge-metastatic">Metastatic (Class 1)</span></td>
+        <td>PNG (RGB)</td>
+        <td>1024 &times; 1024</td>
+        <td>112</td>
+        <td>1.5%</td>
+      </tr>
+      <tr style="font-weight: 700; background-color: #e2e8f0;">
+        <td colspan="5">Total Dataset Inventory</td>
+        <td>7,677</td>
+        <td>100.0%</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-success">
+    <div class="callout-title">Key Dataset Findings for Pipeline Construction</div>
+    <ol>
+      <li><strong>Consistent Imagery:</strong> All 7,677 files are uniform 1024 &times; 1024 RGB <code>.png</code> images. No <code>.tif</code> or multipage decoders are required for the local dataset, streamlining inference.</li>
+      <li><strong>Path Casing Normalization:</strong> Subdirectories use mixed casing (e.g., <code>Metastatic_Training</code> vs. <code>metastatic_validation</code>). Custom loaders must normalize strings to guarantee cross-platform compatibility (Windows / Linux).</li>
+      <li><strong>Class Balance:</strong> The primary training split is balanced (4,005 vs. 3,333). While validation and test splits have unequal counts, stratified batching and class-weighted loss maintain unbiased model optimization.</li>
+    </ol>
+  </div>
+
+  <!-- Section 3 -->
+  <h2>3. Can Colab Code Have a Frontend? (Transition to 24/7 Access)</h2>
+  <p>
+    <strong>Yes, absolutely &mdash; but not by running the frontend directly inside Google Colab.</strong>
+  </p>
+  <p>
+    Google Colab is a temporary development environment: its virtual machines automatically shut down after brief periods of inactivity (15–90 minutes), and it does not provide permanent static URLs. To give doctors, researchers, or evaluators <strong>24/7 all-time access</strong> on web and mobile devices, the system must follow a standard decoupled architecture:
+  </p>
+
+  <div class="grid-2">
+    <div class="section-card">
+      <h4>Phase A: Model Artifact Export</h4>
+      <p>The neural network weights (<code>best_melanoma_model.pth</code>) are saved and decoupled from the training scripts. The model only needs to load the trained parameters to perform rapid inference (taking &lt; 150ms per patch).</p>
+    </div>
+    <div class="section-card">
+      <h4>Phase B: Headless Backend API (FastAPI)</h4>
+      <p>A production Python server loads the weights in memory and exposes RESTful endpoints: <code>/health</code>, <code>/api/v1/predict</code>, and <code>/api/v1/explain</code>. It accepts image uploads and responds with JSON diagnostics and Grad-CAM overlays.</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="section-card">
+      <h4>Phase C: Responsive Clinical Frontend</h4>
+      <p>A web and mobile UI built in <strong>Streamlit</strong> (rapid, clinical-focused) or <strong>React + Tailwind CSS</strong> (full custom web app). Clinicians can drag and drop histology images, adjust heatmap transparency sliders, and view Stage 0&ndash;3 risk cards.</p>
+    </div>
+    <div class="section-card">
+      <h4>Phase D: 24/7 All-Time Cloud Hosting</h4>
+      <p>The decoupled backend and frontend are containerized via Docker and deployed to <strong>Hugging Face Spaces (Free / Low Cost)</strong>, <strong>Render</strong>, or <strong>Google Cloud Run</strong>. This provides a permanent HTTPS domain accessible from any device.</p>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <h2>4. Decoupled Production Architecture Blueprint</h2>
+  <p>The refactored project directory separates machine learning code, backend API services, and frontend presentation layers:</p>
+
+  <pre>MelanomaClassifier/
+&#9500;&#9500; checkpoints/                       # Saved best model weights
+&#9474;   &#9492;&#9500;&#9500; best_melanoma_model.pth
+&#9500;&#9500; DataSet/                           # Local 7,677-patch histology dataset
+&#9474;   &#9500;&#9500; Training/ [Primary_Training, Metastatic_Training]
+&#9474;   &#9500;&#9500; Validation/ [primary_validation, metastatic_validation]
+&#9474;   &#9492;&#9500;&#9500; Testing/ [primary_testing, metastatic_testing]
+&#9500;&#9500; ml_engine/                         # Pure Machine Learning Package
+&#9474;   &#9500;&#9500; __init__.py
+&#9474;   &#9500;&#9500; config.py                      # Hyperparameters, device, paths, constants
+&#9474;   &#9500;&#9500; model.py                       # DenseNet-121 + CBAM Attention + Dual Pooling
+&#9474;   &#9500;&#9500; dataset.py                     # PyTorch Dataset & Transforms for local PNGs
+&#9474;   &#9500;&#9500; train.py                       # Modular training script with checkpointing
+&#9474;   &#9500;&#9500; evaluate.py                    # Standalone test script (ROC, PR, Confusion Matrix)
+&#9474;   &#9500;&#9500; explainability.py              # Grad-CAM, tissue mask, salient focus overlays
+&#9474;   &#9492;&#9500;&#9500; staging.py                     # Stage 0 to Stage 3 Clinical Decision Engine
+&#9500;&#9500; backend/                           # Production FastAPI REST Service
+&#9474;   &#9500;&#9500; __init__.py
+&#9474;   &#9500;&#9500; main.py                        # FastAPI application entrypoint & CORS
+&#9474;   &#9500;&#9500; schemas.py                     # Pydantic response/request validation models
+&#9474;   &#9500;&#9500; service.py                     # Inference singleton (caching model in memory)
+&#9474;   &#9492;&#9500;&#9500; Dockerfile                     # Container definition for backend
+&#9500;&#9500; frontend/                          # Responsive Clinical Web App (Streamlit / React)
+&#9474;   &#9500;&#9500; app.py                         # Interactive dashboard with Grad-CAM viewer
+&#9474;   &#9500;&#9500; assets/                        # Medical icons, styles, clinical references
+&#9474;   &#9492;&#9500;&#9500; Dockerfile                     # Container definition for frontend
+&#9500;&#9500; docker-compose.yml                 # Local & cloud orchestration
+&#9500;&#9500; requirements.txt                   # Minimal production dependencies
+&#9492;&#9500;&#9500; README.md                          # Full system documentation & runbook</pre>
+
+  <!-- Section 5 -->
+  <h2>5. Complete Implementation Plan & Ready-to-Run Prompts</h2>
+  <p>
+    The implementation is divided into 6 manageable phases. Each phase below includes an exact prompt that can be used directly to execute the work:
+  </p>
+
+  <!-- Phase 1 -->
+  <div class="prompt-box">
+    <div class="prompt-header">Phase 1: ML Engine Decoupling & Dataset Ingestion</div>
+    <p style="font-size: 8.5pt; margin-bottom: 6px;"><strong>Objective:</strong> Extract model classes and dataset loaders from <code>majorprj.py</code> into <code>ml_engine/</code>, verifying that all 7,677 patches load seamlessly.</p>
+    <pre><code>Execute Phase 1: Refactor the core ML logic from majorprj.py into a modular ml_engine/ package.
+1. Create `ml_engine/config.py` with image dimensions (224x224), class labels ('Primary', 'Metastatic'), and paths to DataSet/.
+2. Create `ml_engine/model.py` with MultiScaleAttentionMelanomaNet, ChannelAttention, SpatialAttention, and dual-pooling classifier.
+3. Create `ml_engine/dataset.py` with a PyTorch Dataset that handles case-insensitive directory scanning and PNG loading.
+4. Create `ml_engine/staging.py` implementing the Stage 0 to Stage 3 clinical risk stratification logic.
+5. Create a test script to verify that model instantiates and a batch loads from DataSet/Training.</code></pre>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="prompt-box">
+    <div class="prompt-header">Phase 2: Training, Checkpointing & Test Set Evaluation</div>
+    <p style="font-size: 8.5pt; margin-bottom: 6px;"><strong>Objective:</strong> Build production training and evaluation scripts with automated checkpointing to <code>checkpoints/best_melanoma_model.pth</code>.</p>
+    <pre><code>Execute Phase 2: Create training and evaluation pipelines in ml_engine/.
+1. Build `ml_engine/train.py` featuring class-weighted CrossEntropyLoss, AdamW differential learning rates, CosineAnnealingWarmRestarts, and best-model checkpoint saving to `checkpoints/best_melanoma_model.pth`.
+2. Build `ml_engine/evaluate.py` to evaluate the model on `DataSet/Testing/`, reporting accuracy, sensitivity, specificity, and generating Confusion Matrix and ROC-AUC curve plots.</code></pre>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="prompt-box">
+    <div class="prompt-header">Phase 3: Explainability & Heatmap Generation Engine</div>
+    <p style="font-size: 8.5pt; margin-bottom: 6px;"><strong>Objective:</strong> Create the explainable AI module for Grad-CAM overlays and salient foci extraction.</p>
+    <pre><code>Execute Phase 3: Implement the explainability engine in `ml_engine/explainability.py`.
+1. Hook Grad-CAM into `features.denseblock4.denselayer16.conv2`.
+2. Implement automated background tissue masking (threshold luminance & Gaussian blur) to prevent false heatmaps on glass slides.
+3. Implement methods to generate:
+   - Jet colormap heatmap blended over tissue (adjustable alpha)
+   - Salient cellular foci highlighting (attention > 60%)
+   - Base64 encoding for API transmission.</code></pre>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="prompt-box">
+    <div class="prompt-header">Phase 4: High-Performance FastAPI Backend</div>
+    <p style="font-size: 8.5pt; margin-bottom: 6px;"><strong>Objective:</strong> Build a REST API serving predictions, Grad-CAM heatmaps, and clinical reports.</p>
+    <pre><code>Execute Phase 4: Build the production FastAPI backend in `backend/`.
+1. Create `backend/schemas.py` using Pydantic for request and response models (Diagnosis, Probabilities, Staging, Base64 images).
+2. Create `backend/service.py` to manage model caching, 4-view TTA inference, and Grad-CAM generation.
+3. Create `backend/main.py` with routes:
+   - GET /health: Model status and device info
+   - POST /api/v1/predict: Accepts image file, returns JSON diagnosis, clinical stage, and Grad-CAM overlay.
+4. Test the API endpoints locally using curl or python requests.</code></pre>
+  </div>
+
+  <!-- Phase 5 -->
+  <div class="prompt-box">
+    <div class="prompt-header">Phase 5: Responsive Clinical Frontend Dashboard</div>
+    <p style="font-size: 8.5pt; margin-bottom: 6px;"><strong>Objective:</strong> Build a clean, mobile-responsive clinical web dashboard with side-by-side patch viewer and staging cards.</p>
+    <pre><code>Execute Phase 5: Build a responsive, professional Clinical Dashboard using Streamlit in `frontend/app.py`.
+1. Add an intuitive header: "Melanoma AI Decision Support System (Primary vs. Metastatic)".
+2. Include drag-and-drop file upload (.png, .jpg) plus sample test buttons from `DataSet/Testing/`.
+3. Display a 4-panel responsive clinical readout:
+   - Panel 1: Original Histopathology ROI
+   - Panel 2: Grad-CAM Attention Heatmap with interactive transparency slider
+   - Panel 3: Significant Cellular Foci (>60% Attention)
+   - Panel 4: Diagnostic Confidence, Stage 0-3 badge, risk tier, and recommended clinical actions.
+4. Add an exportable PDF/printable summary report.</code></pre>
+  </div>
+
+  <!-- Phase 6 -->
+  <div class="prompt-box">
+    <div class="prompt-header">Phase 6: 24/7 All-Time Cloud Deployment</div>
+    <p style="font-size: 8.5pt; margin-bottom: 6px;"><strong>Objective:</strong> Containerize the application and deploy for 24/7 access on Hugging Face Spaces or Render.</p>
+    <pre><code>Execute Phase 6: Package the application for 24/7 cloud deployment.
+1. Create a production `Dockerfile` containerizing both backend and frontend.
+2. Create a `docker-compose.yml` for unified local testing.
+3. Provide step-by-step instructions for deploying to Hugging Face Spaces (Free 24/7 access) or Render/GCP with a permanent public HTTPS URL.</code></pre>
+  </div>
+
+  <!-- Section 6 -->
+  <h2>6. Summary Comparison: Colab vs. Production Deployment</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Feature / Dimension</th>
+        <th>Original Colab Script (majorprj.py)</th>
+        <th>Decoupled Production Architecture</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Runtime Lifespan</strong></td>
+        <td>Temporary (stops after 15&ndash;90 min idle)</td>
+        <td>Permanent 24/7 Availability</td>
+      </tr>
+      <tr>
+        <td><strong>Access URL</strong></td>
+        <td>Ephemeral, internal Colab session</td>
+        <td>Permanent Public HTTPS Domain (Web & Mobile)</td>
+      </tr>
+      <tr>
+        <td><strong>User Interface</strong></td>
+        <td>Jupyter code cells & files.upload()</td>
+        <td>Interactive Medical Dashboard (Sliders, Cards, Badges)</td>
+      </tr>
+      <tr>
+        <td><strong>Inference Speed</strong></td>
+        <td>Slow (re-imports all modules per run)</td>
+        <td>Fast (&lt; 150ms via cached in-memory model)</td>
+      </tr>
+      <tr>
+        <td><strong>Explainability</strong></td>
+        <td>Static Matplotlib inline plots</td>
+        <td>Interactive Grad-CAM opacity overlays & salient foci</td>
+      </tr>
+      <tr>
+        <td><strong>Integration</strong></td>
+        <td>Tightly coupled monolithic script</td>
+        <td>RESTful JSON API (FastAPI) for hospital/EHR systems</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 25px; padding: 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 8pt; color: #64748b; text-align: center;">
+    Melanoma Histopathology AI Decision Support System &bull; Architectural Blueprint & Implementation Guide &bull; Generated for Pair Programming Workspace
+  </div>
+
+</body>
+</html>

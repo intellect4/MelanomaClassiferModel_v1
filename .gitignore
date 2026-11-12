@@ -1,0 +1,23 @@
+# Large Datasets (Exceeds GitHub 100MB limit)
+DataSet/
+DataSet_224.zip
+*.zip
+
+# Local Runtime Database & Caches
+backend/history_storage.db
+backend/*.db-journal
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments & Secrets
+.venv/
+venv/
+env/
+.env
+
+# OS / Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
